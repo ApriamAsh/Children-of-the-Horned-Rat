@@ -33,7 +33,7 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     data.hitLocations = HIT_LOCATIONS.map(([key, label]) => {
       const manualKey = ({ head: "armourHead", body: "armourBody", rightArm: "armourRightArm", leftArm: "armourLeftArm", rightLeg: "armourRightLeg", leftLeg: "armourLeftLeg" })[key];
       const legacyKey = key.endsWith("Arm") ? "armourArms" : key.endsWith("Leg") ? "armourLegs" : manualKey;
-      const manual = Number(system.combat[manualKey] ?? system.combat[legacyKey] ?? 0);
+      const manual = Number(system.combat[manualKey] ?? 0) + (manualKey !== legacyKey ? Number(system.combat[legacyKey] ?? 0) : 0);
       const equipped = data.armors.filter(item => item.system.equipped && (item.system.location === key || item.system.location === "all")).reduce((sum, item) => sum + (Number(item.system.armourPoints) || 0), 0);
       return { key, label, armour: manual + equipped };
     });
@@ -77,7 +77,9 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async _onRollHitLocation(event) {
     event.preventDefault();
     const roll = await new Roll("1d100").evaluate();
-    const raw = String(roll.total).padStart(2, "0"), reversed = Number(raw.split("").reverse().join(""));
+    const raw = roll.total === 100 ? "00" : String(roll.total).padStart(2, "0");
+    const reversedDigits = raw.split("").reverse().join("");
+    const reversed = reversedDigits === "00" ? 100 : Number(reversedDigits);
     const location = reversed <= 10 ? "Head" : reversed <= 20 ? "Right Arm" : reversed <= 30 ? "Left Arm" : reversed <= 70 ? "Body" : reversed <= 85 ? "Right Leg" : "Left Leg";
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: `<strong>Hit Location</strong> — reversed percentile ${String(reversed).padStart(2, "0")}: <strong>${location}</strong>` });
   }
