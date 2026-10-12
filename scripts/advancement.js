@@ -22,13 +22,16 @@ export const ADVANCE_COSTS = {
 };
 
 export function normalizeAptitude(value) {
-  return String(value ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 export function matchingAptitudes(actor, aptitudeNames = []) {
   const owned = new Set();
   for (const [key, value] of Object.entries(actor.system.aptitudes ?? {})) {
     if (value) owned.add(normalizeAptitude(key));
+  }
+  for (const value of Object.values(actor.system.aptitudeSlots ?? {})) {
+    if (value) owned.add(normalizeAptitude(value));
   }
   return aptitudeNames.filter(Boolean).map(normalizeAptitude).filter(a => owned.has(a)).length;
 }
