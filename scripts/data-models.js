@@ -176,6 +176,7 @@ export class CareerlessItemData extends foundry.abstract.TypeDataModel {
       aptitude2: new StringField({ required: true, blank: true, initial: "" }),
       weight: new NumberField({ required: true, min: 0, initial: 0 }),
       equipped: new BooleanField({ required: true, initial: false }),
+      purchased: new BooleanField({ required: true, initial: false }),
       location: new StringField({ required: true, blank: true, initial: "body" }),
       armourPoints: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       damage: new StringField({ required: true, blank: true, initial: "" }),
