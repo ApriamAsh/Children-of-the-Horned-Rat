@@ -137,7 +137,7 @@
             {{#each inventory}}
             <div class="inventory-item">
               <div class="inventory-item-main"><strong>{{name}}</strong><small>{{type}} · Qty {{system.quantity}} · {{system.weight}} kg each</small><small>{{system.description}}</small></div>
-              <div class="inventory-item-detail">{{#if (eq type "armor")}}<span>{{system.armourPoints}} AP · {{system.location}}</span>{{/if}}{{#if (eq type "weapon")}}<span>{{system.damage}} · {{system.range}}</span>{{/if}}<label class="equipped-toggle"><input type="checkbox" name="items.{{id}}.system.equipped" {{checked system.equipped}} /> Equipped</label></div>
+              <div class="inventory-item-detail">{{#if (eq type "armor")}}<span>{{system.armourPoints}} AP · {{system.location}}</span>{{/if}}{{#if (eq type "weapon")}}<span>{{system.damage}} · {{system.range}}</span>{{/if}}<label class="equipped-toggle"><input class="toggle-equipped" data-item-id="{{id}}" type="checkbox" {{checked system.equipped}} /> Equipped</label></div>
               <div class="inventory-actions"><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">Remove</button></div>
             </div>
             {{else}}<p class="muted">Your inventory is empty. Add weapons, armour, or gear.</p>{{/each}}
