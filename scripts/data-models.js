@@ -40,6 +40,22 @@ export const SKILLS = [
   ["will", "Will", "willpower", ["Willpower", "General"]]
 ];
 
+export const APTITUDE_OPTIONS = [
+  ["general", "General"], ["weaponSkill", "Weapon Skill"], ["ballisticSkill", "Ballistic Skill"],
+  ["strength", "Strength"], ["toughness", "Toughness"], ["agility", "Agility"],
+  ["intelligence", "Intelligence"], ["perception", "Perception"], ["willpower", "Willpower"],
+  ["fellowship", "Fellowship"], ["offence", "Offence"], ["finesse", "Finesse"],
+  ["defence", "Defence"], ["knowledge", "Knowledge"], ["fieldcraft", "Fieldcraft"],
+  ["leadership", "Leadership"], ["social", "Social"], ["magic", "Magic"],
+  ["melee", "Melee"], ["ranged", "Ranged"], ["defence", "Defence"],
+  ["tech", "Tech"], ["lore", "Lore"], ["social", "Social"]
+];
+
+export const HIT_LOCATIONS = [
+  ["head", "Head"], ["rightArm", "Right Arm"], ["leftArm", "Left Arm"],
+  ["body", "Body"], ["rightLeg", "Right Leg"], ["leftLeg", "Left Leg"]
+];
+
 const characteristicSchema = () => new SchemaField({
   base: new NumberField({ required: true, integer: true, min: 0, max: 100, initial: 30 }),
   advances: new NumberField({ required: true, integer: true, min: 0, max: 5, initial: 0 }),
@@ -57,9 +73,10 @@ export class CareerlessCharacterData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const skills = {};
     for (const [key] of SKILLS) skills[key] = skillSchema();
-
     const characteristics = {};
     for (const [key] of CHARACTERISTICS) characteristics[key] = characteristicSchema();
+    const aptitudeSlots = {};
+    for (let i = 1; i <= 10; i++) aptitudeSlots[`slot${i}`] = new StringField({ required: true, blank: true, initial: "" });
 
     return {
       identity: new SchemaField({
@@ -73,6 +90,12 @@ export class CareerlessCharacterData extends foundry.abstract.TypeDataModel {
       }),
       characteristics: new SchemaField(characteristics),
       skills: new SchemaField(skills),
+      customSkill: new SchemaField({
+        name: new StringField({ required: true, blank: true, initial: "" }),
+        characteristic: new StringField({ required: true, initial: "agility" }),
+        modifier: new NumberField({ required: true, integer: true, min: -100, max: 100, initial: 0 })
+      }),
+      aptitudeSlots: new SchemaField(aptitudeSlots),
       aptitudes: new SchemaField({
         weaponSkill: new BooleanField({ required: true, initial: false }),
         ballisticSkill: new BooleanField({ required: true, initial: false }),
@@ -103,7 +126,11 @@ export class CareerlessCharacterData extends foundry.abstract.TypeDataModel {
         armourHead: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
         armourBody: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
         armourArms: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
-        armourLegs: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+        armourLegs: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        armourRightArm: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        armourLeftArm: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        armourRightLeg: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        armourLeftLeg: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
       }),
       advancementNotes: new StringField({ required: true, blank: true, initial: "" })
     };
@@ -146,7 +173,14 @@ export class CareerlessItemData extends foundry.abstract.TypeDataModel {
       xpCost: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       tier: new NumberField({ required: true, integer: true, min: 1, max: 5, initial: 1 }),
       aptitude1: new StringField({ required: true, blank: true, initial: "General" }),
-      aptitude2: new StringField({ required: true, blank: true, initial: "" })
+      aptitude2: new StringField({ required: true, blank: true, initial: "" }),
+      weight: new NumberField({ required: true, min: 0, initial: 0 }),
+      equipped: new BooleanField({ required: true, initial: false }),
+      location: new StringField({ required: true, blank: true, initial: "body" }),
+      armourPoints: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      damage: new StringField({ required: true, blank: true, initial: "" }),
+      weaponType: new StringField({ required: true, blank: true, initial: "" }),
+      range: new StringField({ required: true, blank: true, initial: "" })
     };
   }
 }
