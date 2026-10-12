@@ -48,3 +48,30 @@ input, textarea { border: 1px solid #857666; background: rgba(255,255,255,.72); 
 .item-body textarea { min-height: 140px; }
 .compact { grid-template-columns: 70px 1fr; }
 .item-name { font-size: 20px; font-weight: 700; }
+
+/* Expanded Dark Heresy-inspired character options */
+.custom-skill-panel { margin-bottom: 12px; }
+.custom-skill-grid { display: grid; grid-template-columns: 2fr 1.5fr 90px auto; gap: 8px; align-items: end; }
+.custom-skill-grid label, .aptitude-slot-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.custom-skill-grid input, .custom-skill-grid select, .aptitude-slot-grid input { min-width: 0; width: 100%; }
+.custom-roll-button { min-height: 30px; padding: 5px 10px; font-weight: 700; }
+.aptitude-slot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.location-armour-list { display: grid; gap: 5px; }
+.location-armour-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 9px; background: rgba(255,255,255,.42); border: 1px solid #b2a28e; }
+.inventory-add-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.inventory-list { display: grid; gap: 7px; }
+.inventory-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(115px, .7fr) auto; gap: 8px; padding: 8px; border: 1px solid #b2a28e; background: rgba(255,255,255,.38); align-items: center; }
+.inventory-item-main, .inventory-item-detail { display: flex; flex-direction: column; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+.inventory-item small, .inventory-item-detail { font-size: 11px; color: #6b5e50; }
+.inventory-actions { display: flex; flex-direction: column; gap: 4px; }
+.equipped-toggle { display: flex; gap: 5px; align-items: center; white-space: nowrap; }
+.item-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.item-fields-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.item-fields-grid input, .item-fields-grid select { min-width: 0; width: 100%; }
+.item-body > label { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+@media (max-width: 900px) {
+  .columns.three, .columns.two { grid-template-columns: 1fr; }
+  .custom-skill-grid { grid-template-columns: 1fr 1fr; }
+  .inventory-item { grid-template-columns: 1fr 1fr; }
+  .inventory-actions { flex-direction: row; }
+}
