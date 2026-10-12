@@ -1,0 +1,39 @@
+name: Package Foundry system
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'system.json'
+      - 'scripts/**'
+      - 'styles/**'
+      - 'templates/**'
+      - 'lang/**'
+      - 'README.md'
+      - 'LICENSE.txt'
+      - '.github/workflows/package-foundry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate manifest
+        run: node -e "const m = require('./system.json'); if (!m.id || !m.version || !m.esmodules) process.exit(1); console.log(m.id + ' ' + m.version)"
+      - name: Build installable ZIP
+        run: zip -r careerless-wfrp.zip system.json README.md LICENSE.txt lang scripts styles templates
+      - name: Publish latest installable ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: foundry-latest
+          name: Foundry Install Package (Latest)
+          body: Automatically packaged installable Foundry VTT system build from the main branch.
+          make_latest: true
+          files: careerless-wfrp.zip
+          fail_on_unmatched_files: true
