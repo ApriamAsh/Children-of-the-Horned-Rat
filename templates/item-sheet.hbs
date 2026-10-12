@@ -4,11 +4,30 @@
     <input class="item-name" name="name" type="text" value="{{item.name}}" />
   </header>
   <section class="item-body">
-    <label>Quantity<input name="system.quantity" type="number" value="{{system.quantity}}" /></label>
-    <label>XP Cost<input name="system.xpCost" type="number" value="{{system.xpCost}}" /></label>
-    <label>Tier<input name="system.tier" type="number" value="{{system.tier}}" /></label>
-    <label>Aptitude 1<input name="system.aptitude1" type="text" value="{{system.aptitude1}}" /></label>
-    <label>Aptitude 2<input name="system.aptitude2" type="text" value="{{system.aptitude2}}" /></label>
+    <div class="item-fields-grid">
+      <label>Quantity<input name="system.quantity" type="number" min="0" value="{{system.quantity}}" /></label>
+      <label>Weight (kg each)<input name="system.weight" type="number" min="0" step="0.1" value="{{system.weight}}" /></label>
+      <label>Equipped<input name="system.equipped" type="checkbox" {{checked system.equipped}} /></label>
+      <label>Armour Points<input name="system.armourPoints" type="number" min="0" value="{{system.armourPoints}}" /></label>
+      <label>Armour Location
+        <select name="system.location">
+          <option value="head" {{#if (eq system.location "head")}}selected{{/if}}>Head</option>
+          <option value="body" {{#if (eq system.location "body")}}selected{{/if}}>Body</option>
+          <option value="rightArm" {{#if (eq system.location "rightArm")}}selected{{/if}}>Right Arm</option>
+          <option value="leftArm" {{#if (eq system.location "leftArm")}}selected{{/if}}>Left Arm</option>
+          <option value="rightLeg" {{#if (eq system.location "rightLeg")}}selected{{/if}}>Right Leg</option>
+          <option value="leftLeg" {{#if (eq system.location "leftLeg")}}selected{{/if}}>Left Leg</option>
+          <option value="all" {{#if (eq system.location "all")}}selected{{/if}}>All Locations</option>
+        </select>
+      </label>
+      <label>Weapon Type<input name="system.weaponType" type="text" value="{{system.weaponType}}" placeholder="Melee, pistol, basic…" /></label>
+      <label>Damage<input name="system.damage" type="text" value="{{system.damage}}" placeholder="e.g. 1d10+3 R" /></label>
+      <label>Range<input name="system.range" type="text" value="{{system.range}}" placeholder="e.g. 30 m" /></label>
+      <label>Talent Tier<input name="system.tier" type="number" min="1" max="5" value="{{system.tier}}" /></label>
+      <label>XP Cost<input name="system.xpCost" type="number" min="0" value="{{system.xpCost}}" /></label>
+      <label>Aptitude 1<input name="system.aptitude1" type="text" value="{{system.aptitude1}}" /></label>
+      <label>Aptitude 2<input name="system.aptitude2" type="text" value="{{system.aptitude2}}" /></label>
+    </div>
     <label>Description<textarea name="system.description">{{system.description}}</textarea></label>
   </section>
 </form>
