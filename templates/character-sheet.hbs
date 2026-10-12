@@ -1,0 +1,154 @@
+<form class="{{cssClass}} careerless-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <div class="portrait-wrap">
+      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+    <div class="identity-block">
+      <input class="char-name" name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+      <div class="identity-grid">
+        <label>Ancestry<input name="system.identity.ancestry" type="text" value="{{system.identity.ancestry}}" /></label>
+        <label>Background<input name="system.identity.background" type="text" value="{{system.identity.background}}" /></label>
+      </div>
+    </div>
+    <div class="xp-card">
+      <div class="xp-title">EXPERIENCE</div>
+      <label>Earned<input name="system.xp.earned" type="number" value="{{system.xp.earned}}" /></label>
+      <label>Spent<input name="system.xp.spent" type="number" value="{{system.xp.spent}}" /></label>
+      <div class="xp-available">Available <strong>{{xpAvailable}}</strong></div>
+    </div>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="overview">Overview</a>
+    <a class="item" data-tab="skills">Skills</a>
+    <a class="item" data-tab="aptitudes">Aptitudes</a>
+    <a class="item" data-tab="talents">Talents & Gear</a>
+    <a class="item" data-tab="notes">Notes</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab" data-group="primary" data-tab="overview">
+      <div class="columns three">
+        <section class="panel">
+          <h2>Characteristics</h2>
+          <div class="characteristics-grid">
+            {{#each characteristics}}
+            <div class="characteristic">
+              <button type="button" class="roll-test stat-button" data-test-type="characteristic" data-key="{{key}}" title="Roll {{label}}">
+                <span class="label">{{short}}</span><span class="value">{{total}}</span>
+              </button>
+              <div class="stat-detail">Base {{base}} · Adv {{advances}} · Mod {{modifier}}</div>
+              <button type="button" class="advance-characteristic advance-btn" data-key="{{key}}">Advance +5</button>
+            </div>
+            {{/each}}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Derived Statistics</h2>
+          <div class="derived-grid">
+            <label>SB<input value="{{strengthBonus}}" disabled /></label>
+            <label>TB<input value="{{toughnessBonus}}" disabled /></label>
+            <label>AgB<input value="{{agilityBonus}}" disabled /></label>
+            <label>IntB<input value="{{intelligenceBonus}}" disabled /></label>
+            <label>WPB<input value="{{willpowerBonus}}" disabled /></label>
+            <label>FelB<input value="{{fellowshipBonus}}" disabled /></label>
+            <label>PerB<input value="{{perceptionBonus}}" disabled /></label>
+            <label>Init<input value="{{initiative}}" disabled /></label>
+            <label>Move<input name="system.combat.movement" type="number" value="{{system.combat.movement}}" /></label>
+          </div>
+          <h3>Survivability</h3>
+          <div class="derived-grid">
+            <label>Wounds<input name="system.combat.wounds" type="number" value="{{system.combat.wounds}}" /></label>
+            <label>Current<input name="system.combat.woundsCurrent" type="number" value="{{system.combat.woundsCurrent}}" /></label>
+            <label>Fate<input name="system.combat.fate" type="number" value="{{system.combat.fate}}" /></label>
+            <label>Insanity<input name="system.combat.insanity" type="number" value="{{system.combat.insanity}}" /></label>
+            <label>Magic<input name="system.combat.magic" type="number" value="{{system.combat.magic}}" /></label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Armour</h2>
+          <div class="armour-grid">
+            <label>Head<input name="system.combat.armourHead" type="number" value="{{system.combat.armourHead}}" /></label>
+            <label>Body<input name="system.combat.armourBody" type="number" value="{{system.combat.armourBody}}" /></label>
+            <label>Arms<input name="system.combat.armourArms" type="number" value="{{system.combat.armourArms}}" /></label>
+            <label>Legs<input name="system.combat.armourLegs" type="number" value="{{system.combat.armourLegs}}" /></label>
+          </div>
+          <h3>WFRP-style Bonuses</h3>
+          <p class="muted">Characteristics are percentile. Purchased characteristic advances add +5 each. Skill advances add +10 each.</p>
+        </section>
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="skills">
+      <section class="panel">
+        <h2>Skills</h2>
+        <div class="skill-table">
+          <div class="skill-row header"><span>Skill</span><span>Test</span><span>Known</span><span>Advances</span><span>Aptitudes</span><span></span></div>
+          {{#each skills}}
+          <div class="skill-row">
+            <button type="button" class="roll-test link-button" data-test-type="skill" data-key="{{key}}">{{label}}</button>
+            <strong>{{total}}%</strong>
+            <input type="checkbox" name="system.skills.{{key}}.known" {{checked known}} />
+            <span>{{advances}}</span>
+            <small>{{aptitudes}}</small>
+            <button type="button" class="advance-skill advance-btn" data-key="{{key}}">Buy</button>
+          </div>
+          <div class="skill-specialisation"><label>Specialisation<input name="system.skills.{{key}}.specialisation" type="text" value="{{specialisation}}" /></label><label>Mod<input name="system.skills.{{key}}.modifier" type="number" value="{{modifier}}" /></label></div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="aptitudes">
+      <section class="panel">
+        <h2>Aptitudes</h2>
+        <p class="muted">Aptitudes determine advancement cost. Two matching aptitudes are cheapest; one is standard; none is expensive.</p>
+        <div class="aptitude-columns">
+          {{#each aptitudeGroups}}
+          <div class="aptitude-group">
+            <h3>{{this.[0]}}</h3>
+            {{#each this.[1]}}
+            <label class="aptitude-row"><input type="checkbox" name="system.aptitudes.{{this}}" {{checked (lookup ../../system.aptitudes this)}} /> <span>{{this}}</span></label>
+            {{/each}}
+          </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="talents">
+      <div class="columns two">
+        <section class="panel">
+          <div class="panel-title-row"><h2>Talents</h2><button type="button" class="add-item" data-type="talent">+ Add</button></div>
+          {{#each talents}}
+          <div class="item-row"><span>{{item.name}}</span><small>Tier {{item.system.tier}} · {{cost}} XP</small><button type="button" class="buy-talent" data-item-id="{{item.id}}">Buy</button><button type="button" class="item-edit" data-item-id="{{item.id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{item.id}}">×</button></div>
+          {{else}}<p class="muted">No talents yet.</p>{{/each}}
+        </section>
+        <section class="panel">
+          <div class="panel-title-row"><h2>Weapons</h2><button type="button" class="add-item" data-type="weapon">+ Add</button></div>
+          {{#each weapons}}
+          <div class="item-row"><span>{{name}}</span><small>{{system.quantity}} · {{system.description}}</small><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">×</button></div>
+          {{else}}<p class="muted">No weapons yet.</p>{{/each}}
+          <div class="panel-title-row"><h2>Armour & Equipment</h2><button type="button" class="add-item" data-type="equipment">+ Add</button></div>
+          {{#each armors}}
+          <div class="item-row"><span>{{name}}</span><small>Armor · {{system.quantity}} · {{system.description}}</small><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">×</button></div>
+          {{/each}}
+          {{#each equipment}}
+          <div class="item-row"><span>{{name}}</span><small>{{system.quantity}} · {{system.description}}</small><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">×</button></div>
+          {{/each}}
+        </section>
+      </div>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="notes">
+      <section class="panel">
+        <h2>Biography</h2>
+        <textarea name="system.identity.biography">{{system.identity.biography}}</textarea>
+        <h2>Advancement Notes</h2>
+        <textarea name="system.advancementNotes">{{system.advancementNotes}}</textarea>
+      </section>
+    </div>
+  </section>
+</form>

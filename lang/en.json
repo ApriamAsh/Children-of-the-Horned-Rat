@@ -1,0 +1,19 @@
+{
+  "CAREERLESS_WFRP": {
+    "Sheet": {
+      "Character": "Careerless Character Sheet",
+      "Item": "Careerless Item Sheet"
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character"
+    },
+    "Item": {
+      "talent": "Talent",
+      "weapon": "Weapon",
+      "armor": "Armor",
+      "equipment": "Equipment"
+    }
+  }
+}

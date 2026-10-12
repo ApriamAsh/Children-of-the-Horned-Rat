@@ -1,0 +1,14 @@
+<form class="{{cssClass}} careerless-item-sheet" autocomplete="off">
+  <header class="sheet-header compact">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <input class="item-name" name="name" type="text" value="{{item.name}}" />
+  </header>
+  <section class="item-body">
+    <label>Quantity<input name="system.quantity" type="number" value="{{system.quantity}}" /></label>
+    <label>XP Cost<input name="system.xpCost" type="number" value="{{system.xpCost}}" /></label>
+    <label>Tier<input name="system.tier" type="number" value="{{system.tier}}" /></label>
+    <label>Aptitude 1<input name="system.aptitude1" type="text" value="{{system.aptitude1}}" /></label>
+    <label>Aptitude 2<input name="system.aptitude2" type="text" value="{{system.aptitude2}}" /></label>
+    <label>Description<textarea name="system.description">{{system.description}}</textarea></label>
+  </section>
+</form>
