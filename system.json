@@ -1,15 +1,15 @@
 {
   "id": "careerless-wfrp",
   "title": "Careerless WFRP d100",
-  "description": "An unofficial Foundry Virtual Tabletop game system inspired by WFRP 2e-style d100 mechanics with Career-free, aptitude-based advancement.",
-  "version": "0.1.0",
+  "description": "An unofficial Foundry Virtual Tabletop game system inspired by WFRP 2e-style d100 mechanics with career-free, aptitude-based advancement.",
+  "version": "0.1.1",
   "compatibility": {
     "minimum": "13.341",
     "verified": "14.368"
   },
   "authors": [
     {
-      "name": "OpenAI"
+      "name": "ApriamAsh"
     }
   ],
   "esmodules": [
@@ -44,6 +44,7 @@
   "primaryTokenAttribute": "combat.woundsCurrent",
   "secondaryTokenAttribute": "combat.wounds",
   "socket": true,
-  "url": "https://example.com/careerless-wfrp",
-  "manifest": "https://example.com/careerless-wfrp/system.json"
+  "url": "https://github.com/ApriamAsh/Children-of-the-Horned-Rat",
+  "manifest": "https://raw.githubusercontent.com/ApriamAsh/Children-of-the-Horned-Rat/main/system.json",
+  "download": "https://github.com/ApriamAsh/Children-of-the-Horned-Rat/archive/refs/heads/main.zip"
 }
