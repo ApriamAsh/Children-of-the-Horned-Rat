@@ -1,50 +1,28 @@
-import { ADVANCE_COSTS, characteristicAdvanceCost, skillAdvanceCost, talentCost } from "./advancement.js";
+import { characteristicAdvanceCost, skillAdvanceCost, talentCost } from "./advancement.js";
 import { CHARACTERISTICS, SKILLS, APTITUDE_OPTIONS, HIT_LOCATIONS } from "./data-models.js";
 
 export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["careerless-wfrp", "sheet", "actor"],
-      width: 1150,
-      height: 850,
-      resizable: true,
+      classes: ["careerless-wfrp", "sheet", "actor"], width: 1150, height: 850, resizable: true,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "overview" }]
     });
   }
-
-  get template() {
-    return "systems/careerless-wfrp/templates/character-sheet.hbs";
-  }
+  get template() { return "systems/careerless-wfrp/templates/character-sheet.hbs"; }
 
   getData(options = {}) {
-    const data = super.getData(options);
-    const actor = this.actor;
-    const system = actor.system;
-
-    data.characteristics = CHARACTERISTICS.map(([key, label, short, aptitudes]) => ({
-      key, label, short, aptitudePair: aptitudes.join(" / "), cost: characteristicAdvanceCost(actor, key, aptitudes), ...system.characteristics[key]
-    }));
-    data.skills = SKILLS.map(([key, label, characteristic, aptitudes]) => ({
-      key, label, characteristic, aptitudes: aptitudes.join(" / "), cost: skillAdvanceCost(actor, aptitudes, system.skills[key]), ...system.skills[key]
-    }));
+    const data = super.getData(options), actor = this.actor, system = actor.system;
+    data.characteristics = CHARACTERISTICS.map(([key, label, short, aptitudes]) => ({ key, label, short, cost: characteristicAdvanceCost(actor, key, aptitudes), ...system.characteristics[key] }));
+    data.skills = SKILLS.map(([key, label, characteristic, aptitudes]) => ({ key, label, characteristic, aptitudes: aptitudes.join(" / "), cost: skillAdvanceCost(actor, aptitudes, system.skills[key]), ...system.skills[key] }));
     data.characteristicOptions = CHARACTERISTICS.map(([value, label]) => ({ value, label }));
     data.aptitudeOptions = APTITUDE_OPTIONS.map(([value, label]) => ({ value, label }));
-    data.aptitudeSlots = Object.entries(system.aptitudeSlots ?? {}).map(([key, value], i) => ({
-      key, label: `Aptitude Slot ${i + 1}`, value
-    }));
+    data.aptitudeSlots = Object.entries(system.aptitudeSlots ?? {}).map(([key, value], i) => ({ key, label: `Aptitude Slot ${i + 1}`, value }));
     data.aptitudeGroups = [
       ["Characteristics", ["weaponSkill", "ballisticSkill", "strength", "toughness", "agility", "intelligence", "perception", "willpower", "fellowship"]],
       ["General Aptitudes", ["general", "offence", "finesse", "defence", "knowledge", "fieldcraft", "leadership", "social", "magic"]]
     ];
+    for (const key of ["strengthBonus", "toughnessBonus", "agilityBonus", "intelligenceBonus", "willpowerBonus", "fellowshipBonus", "perceptionBonus", "initiative"]) data[key] = system[key];
     data.xpAvailable = system.xpAvailable;
-    data.strengthBonus = system.strengthBonus;
-    data.toughnessBonus = system.toughnessBonus;
-    data.agilityBonus = system.agilityBonus;
-    data.intelligenceBonus = system.intelligenceBonus;
-    data.willpowerBonus = system.willpowerBonus;
-    data.fellowshipBonus = system.fellowshipBonus;
-    data.perceptionBonus = system.perceptionBonus;
-    data.initiative = system.initiative;
     data.items = actor.items.contents;
     data.talents = data.items.filter(i => i.type === "talent").map(i => ({ item: i, cost: talentCost(actor, i) }));
     data.weapons = data.items.filter(i => i.type === "weapon");
@@ -53,8 +31,9 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     data.inventory = data.items.filter(i => ["weapon", "armor", "equipment"].includes(i.type));
     data.totalWeight = data.inventory.reduce((sum, item) => sum + (Number(item.system.weight) || 0) * (Number(item.system.quantity) || 0), 0);
     data.hitLocations = HIT_LOCATIONS.map(([key, label]) => {
-      const legacyKey = key === "rightArm" || key === "leftArm" ? "armourArms" : key === "rightLeg" || key === "leftLeg" ? "armourLegs" : `armour${key[0].toUpperCase()}${key.slice(1)}`;
-      const manual = Number(system.combat[legacyKey] ?? 0);
+      const manualKey = ({ head: "armourHead", body: "armourBody", rightArm: "armourRightArm", leftArm: "armourLeftArm", rightLeg: "armourRightLeg", leftLeg: "armourLeftLeg" })[key];
+      const legacyKey = key.endsWith("Arm") ? "armourArms" : key.endsWith("Leg") ? "armourLegs" : manualKey;
+      const manual = Number(system.combat[manualKey] ?? system.combat[legacyKey] ?? 0);
       const equipped = data.armors.filter(item => item.system.equipped && (item.system.location === key || item.system.location === "all")).reduce((sum, item) => sum + (Number(item.system.armourPoints) || 0), 0);
       return { key, label, armour: manual + equipped };
     });
@@ -72,87 +51,60 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     html.find(".buy-talent").click(ev => this._onBuyTalent(ev));
     html.find(".delete-item").click(ev => this._onDeleteItem(ev));
     html.find(".item-edit").click(ev => this._onEditItem(ev));
+    html.find(".toggle-equipped").change(ev => this._onToggleEquipped(ev));
   }
 
   async _onRollTest(event) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const type = element.dataset.testType;
-    const key = element.dataset.key;
-    let target = 0;
-    let label = "Test";
+    const { testType: type, key } = event.currentTarget.dataset;
+    let target = 0, label = "Test";
     if (type === "custom") {
-      const custom = this.actor.system.customSkill;
-      const characteristic = this.actor.system.characteristics[custom.characteristic];
+      const custom = this.actor.system.customSkill, characteristic = this.actor.system.characteristics[custom.characteristic];
       label = custom.name.trim() || "Custom Skill";
       target = Math.max(0, Math.min(100, Number(characteristic?.total ?? 0) + Number(custom.modifier ?? 0)));
     } else if (type === "characteristic") {
-      const c = this.actor.system.characteristics[key];
-      target = c.total;
+      target = this.actor.system.characteristics[key].total;
       label = CONFIG.CareerlessWFRP.characteristicLabels[key] ?? key;
     } else {
-      const s = this.actor.system.skills[key];
-      target = s.total;
+      target = this.actor.system.skills[key].total;
       label = CONFIG.CareerlessWFRP.skillLabels[key] ?? key;
     }
-
-    const roll = await new Roll("1d100").evaluate();
-    const success = roll.total <= target;
+    const roll = await new Roll("1d100").evaluate(), success = roll.total <= target;
     const degrees = success ? Math.floor((target - roll.total) / 10) + 1 : Math.floor((roll.total - target - 1) / 10) + 1;
-    const degreeText = success ? `+${degrees} SL` : `-${degrees} SL`;
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<strong>${label}</strong> — target ${target}: ${success ? "SUCCESS" : "FAILURE"} (${degreeText})`
-    });
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: `<strong>${label}</strong> — target ${target}: ${success ? "SUCCESS" : "FAILURE"} (${success ? "+" : "-"}${degrees} SL)` });
   }
 
   async _onRollHitLocation(event) {
     event.preventDefault();
     const roll = await new Roll("1d100").evaluate();
-    const raw = String(roll.total).padStart(2, "0");
-    const reversed = Number(raw.split("").reverse().join(""));
-    let location;
-    if (reversed <= 10) location = "Head";
-    else if (reversed <= 20) location = "Right Arm";
-    else if (reversed <= 30) location = "Left Arm";
-    else if (reversed <= 70) location = "Body";
-    else if (reversed <= 85) location = "Right Leg";
-    else location = "Left Leg";
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<strong>Hit Location</strong> — reversed percentile ${String(reversed).padStart(2, "0")}: <strong>${location}</strong>`
-    });
+    const raw = String(roll.total).padStart(2, "0"), reversed = Number(raw.split("").reverse().join(""));
+    const location = reversed <= 10 ? "Head" : reversed <= 20 ? "Right Arm" : reversed <= 30 ? "Left Arm" : reversed <= 70 ? "Body" : reversed <= 85 ? "Right Leg" : "Left Leg";
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: `<strong>Hit Location</strong> — reversed percentile ${String(reversed).padStart(2, "0")}: <strong>${location}</strong>` });
+  }
+
+  async _onToggleEquipped(event) {
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (item) await item.update({ "system.equipped": event.currentTarget.checked });
   }
 
   async _onAdvanceCharacteristic(event) {
     event.preventDefault();
-    const key = event.currentTarget.dataset.key;
-    const c = this.actor.system.characteristics[key];
+    const key = event.currentTarget.dataset.key, c = this.actor.system.characteristics[key];
     if (!c || c.advances >= 5) return;
-    const config = CHARACTERISTICS.find(([k]) => k === key);
-    const cost = characteristicAdvanceCost(this.actor, key, config?.[3] ?? [key]);
+    const config = CHARACTERISTICS.find(([k]) => k === key), cost = characteristicAdvanceCost(this.actor, key, config?.[3] ?? [key]);
     if (this.actor.system.xpAvailable < cost) return ui.notifications.warn(`Not enough XP. Cost: ${cost}.`);
-    await this.actor.update({
-      [`system.characteristics.${key}.advances`]: c.advances + 1,
-      "system.xp.spent": this.actor.system.xp.spent + cost
-    });
+    await this.actor.update({ [`system.characteristics.${key}.advances`]: c.advances + 1, "system.xp.spent": this.actor.system.xp.spent + cost });
   }
 
   async _onAdvanceSkill(event) {
     event.preventDefault();
-    const key = event.currentTarget.dataset.key;
-    const s = this.actor.system.skills[key];
+    const key = event.currentTarget.dataset.key, s = this.actor.system.skills[key];
     if (!s) return;
     const config = SKILLS.find(([k]) => k === key);
-    let cost;
-    let update;
-    if (!s.known) {
-      cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s);
-      update = { [`system.skills.${key}.known`]: true };
-    } else if (s.advances < 3) {
-      cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s);
-      update = { [`system.skills.${key}.advances`]: s.advances + 1 };
-    } else return;
+    let cost, update;
+    if (!s.known) { cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s); update = { [`system.skills.${key}.known`]: true }; }
+    else if (s.advances < 3) { cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s); update = { [`system.skills.${key}.advances`]: s.advances + 1 }; }
+    else return;
     if (this.actor.system.xpAvailable < cost) return ui.notifications.warn(`Not enough XP. Cost: ${cost}.`);
     update["system.xp.spent"] = this.actor.system.xp.spent + cost;
     await this.actor.update(update);
