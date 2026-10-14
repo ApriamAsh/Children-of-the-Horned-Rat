@@ -54,7 +54,7 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
     root.addEventListener("change", event => {
       const input = event.target?.closest?.("input[name], select[name], textarea[name]");
-      if (input && root.contains(input)) this._onNamedFieldChange(event);
+      if (input && root.contains(input)) this._onNamedFieldChange(input);
     });
 
     root.addEventListener("keydown", event => {
@@ -77,8 +77,8 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     html.find(".toggle-purchased").change(ev => this._onTogglePurchased(ev));
   }
 
-  _onNamedFieldChange(event) {
-    return this._saveNamedField(event.currentTarget ?? event.target);
+  _onNamedFieldChange(input) {
+    return this._saveNamedField(input);
   }
 
   async _saveNamedField(input) {
