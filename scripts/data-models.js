@@ -181,7 +181,15 @@ export class CareerlessItemData extends foundry.abstract.TypeDataModel {
       armourPoints: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       damage: new StringField({ required: true, blank: true, initial: "" }),
       weaponType: new StringField({ required: true, blank: true, initial: "" }),
-      range: new StringField({ required: true, blank: true, initial: "" })
+      range: new StringField({ required: true, blank: true, initial: "" }),
+      skillCharacteristic: new StringField({ required: true, initial: "agility" }),
+      skillModifier: new NumberField({ required: true, integer: true, min: -100, max: 100, initial: 0 }),
+      skillAdvances: new NumberField({ required: true, integer: true, min: 0, max: 3, initial: 0 }),
+      skillKnown: new BooleanField({ required: true, initial: true }),
+      powerCharacteristic: new StringField({ required: true, initial: "willpower" }),
+      powerModifier: new NumberField({ required: true, integer: true, min: -100, max: 100, initial: 0 }),
+      powerType: new StringField({ required: true, blank: true, initial: "Spell" }),
+      powerDamage: new StringField({ required: true, blank: true, initial: "" })
     };
   }
 }
