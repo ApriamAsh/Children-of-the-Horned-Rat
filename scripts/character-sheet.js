@@ -1,4 +1,3 @@
-import { characteristicAdvanceCost, skillAdvanceCost, talentCost } from "./advancement.js";
 import { CHARACTERISTICS, SKILLS, APTITUDE_OPTIONS, HIT_LOCATIONS } from "./data-models.js";
 
 export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
@@ -12,8 +11,8 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   getData(options = {}) {
     const data = super.getData(options), actor = this.actor, system = actor.system;
-    data.characteristics = CHARACTERISTICS.map(([key, label, short, aptitudes]) => ({ key, label, short, cost: characteristicAdvanceCost(actor, key, aptitudes), ...system.characteristics[key] }));
-    data.skills = SKILLS.map(([key, label, characteristic, aptitudes]) => ({ key, label, characteristic, aptitudes: aptitudes.join(" / "), cost: skillAdvanceCost(actor, aptitudes, system.skills[key]), ...system.skills[key] }));
+    data.characteristics = CHARACTERISTICS.map(([key, label, short]) => ({ key, label, short, ...system.characteristics[key] }));
+    data.skills = SKILLS.map(([key, label, characteristic, aptitudes]) => ({ key, label, characteristic, aptitudes: aptitudes.join(" / "), ...system.skills[key] }));
     data.characteristicOptions = CHARACTERISTICS.map(([value, label]) => ({ value, label }));
     data.aptitudeOptions = APTITUDE_OPTIONS.map(([value, label]) => ({ value, label }));
     data.aptitudeSlots = Object.entries(system.aptitudeSlots ?? {}).map(([key, value], i) => ({ key, label: `Aptitude Slot ${i + 1}`, value }));
@@ -22,9 +21,8 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       ["General Aptitudes", ["general", "offence", "finesse", "defence", "knowledge", "fieldcraft", "leadership", "social", "magic"]]
     ];
     for (const key of ["strengthBonus", "toughnessBonus", "agilityBonus", "intelligenceBonus", "willpowerBonus", "fellowshipBonus", "perceptionBonus", "initiative"]) data[key] = system[key];
-    data.xpAvailable = system.xpAvailable;
     data.items = actor.items.contents;
-    data.talents = data.items.filter(i => i.type === "talent").map(i => ({ item: i, cost: talentCost(actor, i) }));
+    data.talents = data.items.filter(i => i.type === "talent").map(item => ({ item }));
     data.weapons = data.items.filter(i => i.type === "weapon");
     data.armors = data.items.filter(i => i.type === "armor");
     data.equipment = data.items.filter(i => i.type === "equipment");
@@ -50,13 +48,11 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     html.find(".roll-weapon-attack").click(ev => this._onWeaponAttack(ev));
     html.find(".roll-custom-skill").click(ev => this._onRollCustomSkillItem(ev));
     html.find(".cast-power").click(ev => this._onCastPower(ev));
-    html.find(".advance-characteristic").click(ev => this._onAdvanceCharacteristic(ev));
-    html.find(".advance-skill").click(ev => this._onAdvanceSkill(ev));
     html.find(".add-item").click(ev => this._onAddItem(ev));
-    html.find(".buy-talent").click(ev => this._onBuyTalent(ev));
     html.find(".delete-item").click(ev => this._onDeleteItem(ev));
     html.find(".item-edit").click(ev => this._onEditItem(ev));
     html.find(".toggle-equipped").change(ev => this._onToggleEquipped(ev));
+    html.find(".toggle-purchased").change(ev => this._onTogglePurchased(ev));
   }
 
   async _onRollTest(event) {
@@ -92,29 +88,6 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async _onToggleEquipped(event) {
     const item = this.actor.items.get(event.currentTarget.dataset.itemId);
     if (item) await item.update({ "system.equipped": event.currentTarget.checked });
-  }
-
-  async _onAdvanceCharacteristic(event) {
-    event.preventDefault();
-    const key = event.currentTarget.dataset.key, c = this.actor.system.characteristics[key];
-    if (!c || c.advances >= 5) return;
-    const config = CHARACTERISTICS.find(([k]) => k === key), cost = characteristicAdvanceCost(this.actor, key, config?.[3] ?? [key]);
-    if (this.actor.system.xpAvailable < cost) return ui.notifications.warn(`Not enough XP. Cost: ${cost}.`);
-    await this.actor.update({ [`system.characteristics.${key}.advances`]: c.advances + 1, "system.xp.spent": this.actor.system.xp.spent + cost });
-  }
-
-  async _onAdvanceSkill(event) {
-    event.preventDefault();
-    const key = event.currentTarget.dataset.key, s = this.actor.system.skills[key];
-    if (!s) return;
-    const config = SKILLS.find(([k]) => k === key);
-    let cost, update;
-    if (!s.known) { cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s); update = { [`system.skills.${key}.known`]: true }; }
-    else if (s.advances < 3) { cost = skillAdvanceCost(this.actor, config?.[3] ?? [], s); update = { [`system.skills.${key}.advances`]: s.advances + 1 }; }
-    else return;
-    if (this.actor.system.xpAvailable < cost) return ui.notifications.warn(`Not enough XP. Cost: ${cost}.`);
-    update["system.xp.spent"] = this.actor.system.xp.spent + cost;
-    await this.actor.update(update);
   }
 
   async _onAddItem(event) {
@@ -189,15 +162,9 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: chatContent });
   }
 
-  async _onBuyTalent(event) {
-    event.preventDefault();
+  async _onTogglePurchased(event) {
     const item = this.actor.items.get(event.currentTarget.dataset.itemId);
-    if (!item) return;
-    if (item.system.purchased) return ui.notifications.info("This talent has already been purchased.");
-    const cost = talentCost(this.actor, item);
-    if (this.actor.system.xpAvailable < cost) return ui.notifications.warn(`Not enough XP. Cost: ${cost}.`);
-    await item.update({ "system.purchased": true });
-    await this.actor.update({ "system.xp.spent": this.actor.system.xp.spent + cost });
+    if (item) await item.update({ "system.purchased": event.currentTarget.checked });
   }
 
   async _onDeleteItem(event) {
