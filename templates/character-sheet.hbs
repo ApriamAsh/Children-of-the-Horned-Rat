@@ -12,7 +12,6 @@
       <div class="xp-title">EXPERIENCE</div>
       <label>Earned<input name="system.xp.earned" type="number" value="{{system.xp.earned}}" /></label>
       <label>Spent<input name="system.xp.spent" type="number" value="{{system.xp.spent}}" /></label>
-      <div class="xp-available">Available <strong>{{xpAvailable}}</strong></div>
     </div>
   </header>
   <nav class="sheet-tabs tabs" data-group="primary">
@@ -31,9 +30,8 @@
           <div class="characteristics-grid">
             {{#each characteristics}}
             <div class="characteristic">
-              <button type="button" class="roll-test stat-button" data-test-type="characteristic" data-key="{{key}}" title="Roll {{label}}"><span class="label">{{short}}</span><span class="value">{{total}}</span></button>
-              <div class="stat-detail">Base {{base}} · Adv {{advances}} · Mod {{modifier}}</div>
-              <button type="button" class="advance-characteristic advance-btn" data-key="{{key}}">Advance +5 · {{cost}} XP</button>
+              <div class="characteristic-head"><strong>{{label}} ({{short}})</strong><button type="button" class="roll-test stat-roll" data-test-type="characteristic" data-key="{{key}}" title="Roll {{label}}">Roll</button></div>
+              <label class="characteristic-score">Characteristic<input name="system.characteristics.{{key}}.total" type="number" min="0" max="100" step="1" value="{{total}}" /></label>
             </div>
             {{/each}}
           </div>
@@ -105,7 +103,7 @@
           <div class="skill-row">
             <button type="button" class="roll-test link-button" data-test-type="skill" data-key="{{key}}">{{label}}</button>
             <strong>{{total}}%</strong><input type="checkbox" name="system.skills.{{key}}.known" {{checked known}} />
-            <span>{{advances}}</span><small>{{aptitudes}}</small><button type="button" class="advance-skill advance-btn" data-key="{{key}}">Buy · {{cost}} XP</button>
+            <input aria-label="{{label}} advances" name="system.skills.{{key}}.advances" type="number" min="0" max="3" value="{{advances}}" /><small>{{aptitudes}}</small><span class="manual-note">Manual</span>
           </div>
           <div class="skill-specialisation"><label>Specialisation<input name="system.skills.{{key}}.specialisation" type="text" value="{{specialisation}}" /></label><label>Mod<input name="system.skills.{{key}}.modifier" type="number" value="{{modifier}}" /></label></div>
           {{/each}}
@@ -143,7 +141,7 @@
         <section class="panel">
           <div class="panel-title-row"><h2>Talents</h2><button type="button" class="add-item" data-type="talent">+ Add</button></div>
           {{#each talents}}
-          <div class="item-row"><span>{{item.name}}</span><small>Tier {{item.system.tier}} · {{cost}} XP {{#if item.system.purchased}}· Purchased{{/if}}</small><button type="button" class="buy-talent" data-item-id="{{item.id}}">{{#if item.system.purchased}}Bought{{else}}Buy{{/if}}</button><button type="button" class="item-edit" data-item-id="{{item.id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{item.id}}">×</button></div>
+          <div class="item-row"><span>{{item.name}}</span><small>Tier {{item.system.tier}}</small><label class="purchased-toggle">Purchased <input type="checkbox" class="toggle-purchased" data-item-id="{{item.id}}" {{checked item.system.purchased}} /></label><button type="button" class="item-edit" data-item-id="{{item.id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{item.id}}">×</button></div>
           {{else}}<p class="muted">No talents yet.</p>{{/each}}
         </section>
         <section class="panel">
