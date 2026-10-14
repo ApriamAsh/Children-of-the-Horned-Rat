@@ -18,6 +18,7 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="overview">Overview</a>
     <a class="item" data-tab="skills">Skills</a>
+    <a class="item" data-tab="powers">Magical Powers</a>
     <a class="item" data-tab="aptitudes">Aptitudes</a>
     <a class="item" data-tab="talents">Inventory & Gear</a>
     <a class="item" data-tab="notes">Notes</a>
@@ -88,6 +89,15 @@
         </div>
       </section>
       <section class="panel">
+        <div class="panel-title-row"><h2>Custom Skills</h2><button type="button" class="add-item" data-type="skill">+ Add Custom Skill</button></div>
+        <p class="muted">Persistent custom skills with their own governing characteristic, advances, and modifier.</p>
+        <div class="custom-entry-list">
+          {{#each customSkills}}
+          <div class="custom-entry"><div><strong>{{name}}</strong><small>{{system.skillCharacteristic}} · {{system.skillAdvances}} advances · modifier {{system.skillModifier}}</small></div><button type="button" class="roll-custom-skill" data-item-id="{{id}}">Roll Skill</button><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">Remove</button></div>
+          {{else}}<p class="muted">No custom skills yet. Add one to save it on this character.</p>{{/each}}
+        </div>
+      </section>
+      <section class="panel">
         <h2>Skills</h2>
         <div class="skill-table">
           <div class="skill-row header"><span>Skill</span><span>Test</span><span>Known</span><span>Advances</span><span>Aptitudes</span><span></span></div>
@@ -100,6 +110,12 @@
           <div class="skill-specialisation"><label>Specialisation<input name="system.skills.{{key}}.specialisation" type="text" value="{{specialisation}}" /></label><label>Mod<input name="system.skills.{{key}}.modifier" type="number" value="{{modifier}}" /></label></div>
           {{/each}}
         </div>
+      </section>
+    </div>
+    <div class="tab" data-group="primary" data-tab="powers">
+      <section class="panel"><div class="panel-title-row"><h2>Magical Powers</h2><button type="button" class="add-item" data-type="power">+ Add Power</button></div>
+        <p class="muted">Record spells, prayers, psychic powers, and supernatural abilities. Use rolls test the selected characteristic plus modifier.</p>
+        <div class="custom-entry-list">{{#each powers}}<div class="custom-entry power-entry"><div><strong>{{name}}</strong><small>{{system.powerType}} · {{system.powerCharacteristic}} · modifier {{system.powerModifier}}</small><p>{{system.description}}</p>{{#if system.powerDamage}}<small>Effect / Damage: {{system.powerDamage}}</small>{{/if}}</div><button type="button" class="cast-power" data-item-id="{{id}}">Cast / Use</button><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">Remove</button></div>{{else}}<p class="muted">No magical powers recorded. Add one to get started.</p>{{/each}}</div>
       </section>
     </div>
     <div class="tab" data-group="primary" data-tab="aptitudes">
@@ -137,7 +153,7 @@
             {{#each inventory}}
             <div class="inventory-item">
               <div class="inventory-item-main"><strong>{{name}}</strong><small>{{type}} · Qty {{system.quantity}} · {{system.weight}} kg each</small><small>{{system.description}}</small></div>
-              <div class="inventory-item-detail">{{#if (eq type "armor")}}<span>{{system.armourPoints}} AP · {{system.location}}</span>{{/if}}{{#if (eq type "weapon")}}<span>{{system.damage}} · {{system.range}}</span>{{/if}}<label class="equipped-toggle"><input class="toggle-equipped" data-item-id="{{id}}" type="checkbox" {{checked system.equipped}} /> Equipped</label></div>
+              <div class="inventory-item-detail">{{#if (eq type "armor")}}<span>{{system.armourPoints}} AP · {{system.location}}</span>{{/if}}{{#if (eq type "weapon")}}<span>{{system.damage}} · {{system.range}}</span><button type="button" class="roll-weapon-attack" data-item-id="{{id}}">Attack Target</button>{{/if}}<label class="equipped-toggle"><input class="toggle-equipped" data-item-id="{{id}}" type="checkbox" {{checked system.equipped}} /> Equipped</label></div>
               <div class="inventory-actions"><button type="button" class="item-edit" data-item-id="{{id}}">Edit</button><button type="button" class="delete-item" data-item-id="{{id}}">Remove</button></div>
             </div>
             {{else}}<p class="muted">Your inventory is empty. Add weapons, armour, or gear.</p>{{/each}}
