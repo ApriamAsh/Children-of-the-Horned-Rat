@@ -57,6 +57,7 @@ export const HIT_LOCATIONS = [
 ];
 
 const characteristicSchema = () => new SchemaField({
+  total: new NumberField({ required: true, integer: true, min: 0, max: 100, initial: 30 }),
   base: new NumberField({ required: true, integer: true, min: 0, max: 100, initial: 30 }),
   advances: new NumberField({ required: true, integer: true, min: 0, max: 5, initial: 0 }),
   modifier: new NumberField({ required: true, integer: true, min: -100, max: 100, initial: 0 })
@@ -144,7 +145,7 @@ export class CareerlessCharacterData extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     for (const [key] of CHARACTERISTICS) {
       const c = this.characteristics[key];
-      c.total = Math.max(0, Math.min(100, c.base + c.advances * 5 + c.modifier));
+      c.total = Math.max(0, Math.min(100, Number(c.total ?? 30)));
       c.bonus = Math.floor(c.total / 10);
     }
     for (const [key, label, characteristic] of SKILLS) {
