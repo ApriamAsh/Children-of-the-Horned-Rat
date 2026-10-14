@@ -4,7 +4,7 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["careerless-wfrp", "sheet", "actor"], width: 1150, height: 850, resizable: true,
-      submitOnChange: true, closeOnSubmit: false,
+      submitOnChange: false, closeOnSubmit: false,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "overview" }]
     });
   }
@@ -44,6 +44,15 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   activateListeners(html) {
     super.activateListeners(html);
+    // Save named fields directly to the Actor document instead of relying on
+    // legacy FormApplication submit-on-change behavior across Foundry versions.
+    html.find("input[name], select[name], textarea[name]").on("change", ev => this._onNamedFieldChange(ev));
+    html.find("input[name]").on("keydown", ev => {
+      if (ev.key !== "Enter") return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      this._saveNamedField(ev.currentTarget);
+    });
     html.find(".roll-test").click(ev => this._onRollTest(ev));
     html.find(".roll-hit-location").click(ev => this._onRollHitLocation(ev));
     html.find(".roll-weapon-attack").click(ev => this._onWeaponAttack(ev));
@@ -54,6 +63,31 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     html.find(".item-edit").click(ev => this._onEditItem(ev));
     html.find(".toggle-equipped").change(ev => this._onToggleEquipped(ev));
     html.find(".toggle-purchased").change(ev => this._onTogglePurchased(ev));
+  }
+
+  _onNamedFieldChange(event) {
+    return this._saveNamedField(event.currentTarget);
+  }
+
+  async _saveNamedField(input) {
+    const path = input?.name;
+    if (!path || input.disabled || input.readOnly) return;
+    let value;
+    if (input.type === "checkbox") value = input.checked;
+    else if (input.type === "number") {
+      if (input.value.trim() === "") return;
+      value = input.valueAsNumber;
+      if (!Number.isFinite(value)) return;
+    } else value = input.value;
+
+    const current = path === "name" ? this.actor.name : foundry.utils.getProperty(this.actor, path);
+    if (current === value) return;
+    try {
+      await this.actor.update({ [path]: value });
+    } catch (error) {
+      console.error("Careerless WFRP | Failed to save character field", path, error);
+      ui.notifications.error(`Could not save ${path}. Check the browser console for details.`);
+    }
   }
 
   async _onRollTest(event) {
@@ -97,7 +131,6 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     const name = { talent: "New Talent", weapon: "New Weapon", armor: "New Armour", equipment: "New Gear", skill: "New Custom Skill", power: "New Magical Power" }[type] ?? "New Item";
     await Item.create({ name, type, system: {} }, { parent: this.actor });
   }
-
 
   async _onRollCustomSkillItem(event) {
     event.preventDefault();
