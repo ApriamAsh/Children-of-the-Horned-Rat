@@ -29,6 +29,8 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     data.armors = data.items.filter(i => i.type === "armor");
     data.equipment = data.items.filter(i => i.type === "equipment");
     data.inventory = data.items.filter(i => ["weapon", "armor", "equipment"].includes(i.type));
+    data.customSkills = data.items.filter(i => i.type === "skill");
+    data.powers = data.items.filter(i => i.type === "power");
     data.totalWeight = data.inventory.reduce((sum, item) => sum + (Number(item.system.weight) || 0) * (Number(item.system.quantity) || 0), 0);
     data.hitLocations = HIT_LOCATIONS.map(([key, label]) => {
       const manualKey = ({ head: "armourHead", body: "armourBody", rightArm: "armourRightArm", leftArm: "armourLeftArm", rightLeg: "armourRightLeg", leftLeg: "armourLeftLeg" })[key];
@@ -45,6 +47,9 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     super.activateListeners(html);
     html.find(".roll-test").click(ev => this._onRollTest(ev));
     html.find(".roll-hit-location").click(ev => this._onRollHitLocation(ev));
+    html.find(".roll-weapon-attack").click(ev => this._onWeaponAttack(ev));
+    html.find(".roll-custom-skill").click(ev => this._onRollCustomSkillItem(ev));
+    html.find(".cast-power").click(ev => this._onCastPower(ev));
     html.find(".advance-characteristic").click(ev => this._onAdvanceCharacteristic(ev));
     html.find(".advance-skill").click(ev => this._onAdvanceSkill(ev));
     html.find(".add-item").click(ev => this._onAddItem(ev));
@@ -115,8 +120,73 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async _onAddItem(event) {
     event.preventDefault();
     const type = event.currentTarget.dataset.type;
-    const name = { talent: "New Talent", weapon: "New Weapon", armor: "New Armour", equipment: "New Gear" }[type] ?? "New Item";
+    const name = { talent: "New Talent", weapon: "New Weapon", armor: "New Armour", equipment: "New Gear", skill: "New Custom Skill", power: "New Magical Power" }[type] ?? "New Item";
     await Item.create({ name, type, system: {} }, { parent: this.actor });
+  }
+
+
+  async _onRollCustomSkillItem(event) {
+    event.preventDefault();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item) return;
+    const d = item.system, c = this.actor.system.characteristics[d.skillCharacteristic];
+    const target = Math.max(0, Math.min(100, Number(c?.total ?? 0) + Number(d.skillAdvances ?? 0) * 10 + Number(d.skillModifier ?? 0)));
+    await this._rollPercentileTest(item.name, target, "Custom Skill");
+  }
+
+  async _onCastPower(event) {
+    event.preventDefault();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item) return;
+    const d = item.system, c = this.actor.system.characteristics[d.powerCharacteristic] ?? this.actor.system.characteristics.willpower;
+    const target = Math.max(0, Math.min(100, Number(c.total ?? 0) + Number(d.powerModifier ?? 0)));
+    await this._rollPercentileTest(item.name + " (" + (d.powerType || "Power") + ")", target, "Magical Power");
+  }
+
+  async _rollPercentileTest(label, target, category) {
+    const roll = await new Roll("1d100").evaluate(), success = roll.total <= target;
+    const degrees = success ? Math.floor((target - roll.total) / 10) + 1 : Math.floor((roll.total - target - 1) / 10) + 1;
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: "<strong>" + category + ": " + label + "</strong> — target " + target + ": " + (success ? "SUCCESS" : "FAILURE") + " (" + (success ? "+" : "-") + degrees + " SL)" });
+  }
+
+  async _onWeaponAttack(event) {
+    event.preventDefault();
+    const weapon = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!weapon) return;
+    const targetToken = Array.from(game.user.targets ?? [])[0];
+    if (!targetToken?.actor) { ui.notifications.warn("Target a token in the scene before making an attack."); return; }
+    const targetActor = targetToken.actor, w = weapon.system;
+    const isMelee = /melee|close combat|hand-to-hand/i.test(String(w.weaponType || ""));
+    const characteristicKey = isMelee ? "weaponSkill" : "ballisticSkill";
+    const attackTarget = Number(this.actor.system.characteristics[characteristicKey]?.total ?? 0);
+    const attackRoll = await new Roll("1d100").evaluate(), hit = attackRoll.total <= attackTarget;
+    const raw = attackRoll.total === 100 ? "00" : String(attackRoll.total).padStart(2, "0");
+    const reversedText = raw.split("").reverse().join("");
+    const reversed = reversedText === "00" ? 100 : Number(reversedText);
+    const loc = reversed <= 10 ? "head" : reversed <= 20 ? "rightArm" : reversed <= 30 ? "leftArm" : reversed <= 70 ? "body" : reversed <= 85 ? "rightLeg" : "leftLeg";
+    const labels = {head:"Head",rightArm:"Right Arm",leftArm:"Left Arm",body:"Body",rightLeg:"Right Leg",leftLeg:"Left Leg"};
+    let damageRoll = null, rawDamage = 0, armour = 0, toughness = 0, finalDamage = 0, woundsAfter = null;
+    if (hit) {
+      let formula = String(w.damage || "1d10").trim().replace(/\s+[A-Za-z]{1,4}\s*$/, "");
+      const hadSB = /\bSB\b/i.test(formula);
+      formula = formula.replace(/\bSB\b/gi, String(this.actor.system.strengthBonus ?? 0));
+      if (!/^[\d dD+*/().\-]+$/.test(formula)) { ui.notifications.warn("Invalid damage formula. Use e.g. 1d10+3 or 1d10+SB."); return; }
+      if (isMelee && !hadSB) formula += "+" + Number(this.actor.system.strengthBonus ?? 0);
+      try { damageRoll = await new Roll(formula).evaluate(); rawDamage = Math.max(0, Number(damageRoll.total) || 0); }
+      catch (err) { ui.notifications.warn("Could not roll this weapon's damage formula."); return; }
+      const combat = targetActor.system?.combat ?? {};
+      const legacy = loc.endsWith("Arm") ? Number(combat.armourArms ?? 0) : loc.endsWith("Leg") ? Number(combat.armourLegs ?? 0) : 0;
+      const manualKey = ({head:"armourHead",body:"armourBody",rightArm:"armourRightArm",leftArm:"armourLeftArm",rightLeg:"armourRightLeg",leftLeg:"armourLeftLeg"})[loc];
+      armour = Number(combat[manualKey] ?? 0) + legacy;
+      armour += targetActor.items.contents.filter(i => i.type === "armor" && i.system.equipped && (i.system.location === loc || i.system.location === "all")).reduce((sum, i) => sum + (Number(i.system.armourPoints) || 0), 0);
+      toughness = Number(targetActor.system?.toughnessBonus ?? Math.floor(Number(targetActor.system?.characteristics?.toughness?.total ?? 0) / 10));
+      finalDamage = Math.max(0, rawDamage - armour - toughness);
+      woundsAfter = Math.max(0, Number(combat.woundsCurrent ?? 0) - finalDamage);
+      await targetActor.update({"system.combat.woundsCurrent": woundsAfter});
+    }
+    const outcome = hit ? "<strong>HIT</strong> — " + labels[loc] + " (reversed " + String(reversed).padStart(2,"0") + "). Damage " + rawDamage + "; AP " + armour + "; TB " + toughness + "; <strong>" + finalDamage + " wounds</strong> dealt. Target wounds: " + woundsAfter + "." : "<strong>MISS</strong> — attack target " + attackTarget + ".";
+    const chatContent = "<p><strong>" + this.actor.name + "</strong> attacks <strong>" + targetActor.name + "</strong> with <strong>" + weapon.name + "</strong>.</p><p>Attack roll: " + attackRoll.total + " vs " + attackTarget + " (" + (isMelee ? "Weapon Skill" : "Ballistic Skill") + ").</p><p>" + outcome + "</p>" + (damageRoll ? "<p>Damage roll: " + damageRoll.total + " (" + damageRoll.formula + ").</p>" : "");
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: chatContent });
   }
 
   async _onBuyTalent(event) {
