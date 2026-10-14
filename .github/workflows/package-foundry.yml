@@ -29,11 +29,9 @@ jobs:
       - name: Build installable ZIP
         run: zip -r careerless-wfrp.zip system.json README.md LICENSE.txt lang scripts styles templates
       - name: Publish latest installable ZIP
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: foundry-latest
-          name: Foundry Install Package (Latest)
-          body: Automatically packaged installable Foundry VTT system build from the main branch.
-          make_latest: true
-          files: careerless-wfrp.zip
-          fail_on_unmatched_files: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view foundry-latest >/dev/null 2>&1 || gh release create foundry-latest --title "Foundry Install Package (Latest)" --notes "Automatically packaged installable Foundry VTT system build from the main branch."
+          gh release upload foundry-latest careerless-wfrp.zip --clobber
+          gh release edit foundry-latest --title "Foundry Install Package (Latest)" --notes "Automatically packaged installable Foundry VTT system build from the main branch."
