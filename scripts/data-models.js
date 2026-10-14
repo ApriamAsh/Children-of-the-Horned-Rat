@@ -71,6 +71,22 @@ const skillSchema = () => new SchemaField({
 });
 
 export class CareerlessCharacterData extends foundry.abstract.TypeDataModel {
+  static migrateData(source) {
+    const data = foundry.utils.deepClone(source);
+    for (const [key] of CHARACTERISTICS) {
+      const characteristic = data.characteristics?.[key];
+      // Preserve a legacy score when upgrading from the old calculated characteristic model.
+      if (characteristic && characteristic.total === undefined) {
+        characteristic.total = Math.max(0, Math.min(100,
+          Number(characteristic.base ?? 30) +
+          Number(characteristic.advances ?? 0) * 5 +
+          Number(characteristic.modifier ?? 0)
+        ));
+      }
+    }
+    return data;
+  }
+
   static defineSchema() {
     const skills = {};
     for (const [key] of SKILLS) skills[key] = skillSchema();
