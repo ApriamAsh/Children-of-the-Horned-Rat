@@ -1,8 +1,8 @@
 {
   "id": "careerless-wfrp",
-  "title": "Careerless WFRP d100",
-  "description": "Foundry VTT d100 roleplaying system with manually editable characteristics and XP tracking, custom skills, targeted attacks with automatic damage, magical powers, inventory, hit locations and armour.",
-  "version": "0.3.4",
+  "title": "Children of the Horned Rat — d100",
+  "description": "A grimy, rat-clan-inspired Foundry VTT d100 roleplaying system with characteristics, skills, aptitudes, advancement, combat, powers and inventory.",
+  "version": "0.3.5",
   "compatibility": {
     "minimum": "13.341",
     "verified": "14.368"
