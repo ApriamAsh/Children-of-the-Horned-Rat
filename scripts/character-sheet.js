@@ -4,6 +4,7 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["careerless-wfrp", "sheet", "actor"], width: 1150, height: 850, resizable: true,
+      submitOnChange: true, closeOnSubmit: false,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "overview" }]
     });
   }
