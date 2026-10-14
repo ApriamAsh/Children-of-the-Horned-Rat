@@ -44,15 +44,27 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   activateListeners(html) {
     super.activateListeners(html);
-    // Save named fields directly to the Actor document instead of relying on
-    // legacy FormApplication submit-on-change behavior across Foundry versions.
-    html.find("input[name], select[name], textarea[name]").on("change", ev => this._onNamedFieldChange(ev));
-    html.find("input[name]").on("keydown", ev => {
-      if (ev.key !== "Enter") return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      this._saveNamedField(ev.currentTarget);
+    // Use native delegated listeners so field saving works across Foundry V1
+    // compatibility wrappers that expose either jQuery or a native element.
+    const root = html?.[0] ?? html;
+    if (!root?.addEventListener) {
+      console.error("Careerless WFRP | Could not attach character field listeners: sheet root is not a DOM element.");
+      return;
+    }
+
+    root.addEventListener("change", event => {
+      const input = event.target?.closest?.("input[name], select[name], textarea[name]");
+      if (input && root.contains(input)) this._onNamedFieldChange(event);
     });
+
+    root.addEventListener("keydown", event => {
+      const input = event.target?.closest?.("input[name]");
+      if (!input || !root.contains(input) || event.key !== "Enter") return;
+      event.preventDefault();
+      event.stopPropagation();
+      this._saveNamedField(input);
+    });
+
     html.find(".roll-test").click(ev => this._onRollTest(ev));
     html.find(".roll-hit-location").click(ev => this._onRollHitLocation(ev));
     html.find(".roll-weapon-attack").click(ev => this._onWeaponAttack(ev));
@@ -66,7 +78,7 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   _onNamedFieldChange(event) {
-    return this._saveNamedField(event.currentTarget);
+    return this._saveNamedField(event.currentTarget ?? event.target);
   }
 
   async _saveNamedField(input) {
@@ -81,9 +93,15 @@ export class CareerlessCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     } else value = input.value;
 
     const current = path === "name" ? this.actor.name : foundry.utils.getProperty(this.actor, path);
-    if (current === value) return;
+    console.debug("Careerless WFRP | Field edit detected", { path, current, value });
+    if (current === value) {
+      console.debug("Careerless WFRP | No save needed; value is unchanged", path);
+      return;
+    }
     try {
       await this.actor.update({ [path]: value });
+      console.info("Careerless WFRP | Field saved", { path, value });
+      ui.notifications.info(`Saved ${path}`);
     } catch (error) {
       console.error("Careerless WFRP | Failed to save character field", path, error);
       ui.notifications.error(`Could not save ${path}. Check the browser console for details.`);
