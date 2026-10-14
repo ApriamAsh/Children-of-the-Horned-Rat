@@ -1,8 +1,8 @@
 {
   "id": "careerless-wfrp",
   "title": "Careerless WFRP d100",
-  "description": "Foundry VTT d100 roleplaying system with aptitude-slot advancement, custom skills, targeted attacks with automatic damage, magical powers, inventory, hit locations and armour.",
-  "version": "0.3.0",
+  "description": "Foundry VTT d100 roleplaying system with manually editable characteristics and XP tracking, custom skills, targeted attacks with automatic damage, magical powers, inventory, hit locations and armour.",
+  "version": "0.3.1",
   "compatibility": {
     "minimum": "13.341",
     "verified": "14.368"
