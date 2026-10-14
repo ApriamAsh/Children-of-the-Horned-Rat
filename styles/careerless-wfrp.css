@@ -112,3 +112,209 @@
 .careerless-wfrp .stat-roll{padding:2px 8px;font-size:11px}
 .careerless-wfrp .manual-note{font-size:10px;color:#c5a253;text-transform:uppercase}
 .careerless-wfrp .purchased-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:#cfc5ae}
+
+
+/* CHILDREN OF THE HORNED RAT — soot, rust, bone, and warpstone */
+.careerless-wfrp.sheet.actor,
+.careerless-wfrp.sheet.item {
+  --rat-soot: #111713;
+  --rat-iron: #202923;
+  --rat-panel: #1a211b;
+  --rat-panel-raised: #252d24;
+  --rat-bone: #e3dcc1;
+  --rat-bone-dim: #bcb69c;
+  --rat-rust: #8d472b;
+  --rat-rust-light: #bd6840;
+  --rat-warp: #8bd33d;
+  --rat-warp-bright: #c1ff66;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(93, 133, 49, .13), transparent 55%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 2px, transparent 2px 6px),
+    var(--rat-soot);
+  color: var(--rat-bone);
+  border: 1px solid #52633a;
+  box-shadow: 0 0 0 2px #0b0e0b, 0 0 18px rgba(119, 190, 45, .12);
+}
+.careerless-wfrp .window-content {
+  background:
+    radial-gradient(ellipse at 85% 5%, rgba(111, 165, 47, .07), transparent 36%),
+    var(--rat-soot);
+  color: var(--rat-bone);
+}
+.careerless-wfrp .sheet-header {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(122, 57, 32, .25), transparent 34%, rgba(111, 165, 47, .08)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 5px),
+    #171d17;
+  border-bottom: 3px solid var(--rat-rust);
+  box-shadow: inset 0 -1px 0 rgba(139, 211, 61, .3);
+}
+.careerless-wfrp .sheet-header::after {
+  content: "CLAN • TOOTH • CLAW";
+  position: absolute;
+  right: 12px;
+  bottom: 3px;
+  color: rgba(193, 255, 102, .42);
+  font-size: 8px;
+  letter-spacing: 3px;
+  pointer-events: none;
+}
+.careerless-wfrp .profile-img {
+  border: 2px solid var(--rat-rust-light);
+  box-shadow: 0 0 0 2px #101510, 0 0 10px rgba(139, 211, 61, .15);
+}
+.careerless-wfrp .char-name {
+  color: var(--rat-warp-bright);
+  text-shadow: 0 0 8px rgba(139, 211, 61, .16);
+}
+.careerless-wfrp .xp-card {
+  border-left: 1px solid var(--rat-rust);
+}
+.careerless-wfrp .xp-title {
+  color: var(--rat-warp);
+  letter-spacing: 2px;
+}
+.careerless-wfrp .xp-available {
+  background: linear-gradient(135deg, #26351d, #182119);
+  border: 1px solid #526c35;
+  color: var(--rat-warp-bright);
+}
+.careerless-wfrp .sheet-tabs {
+  background: #0b100c;
+  border-bottom: 1px solid #52633a;
+  color: var(--rat-bone);
+}
+.careerless-wfrp .sheet-tabs .item {
+  color: #c8cbb5;
+  border-right: 1px solid #303b2b;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transition: background .15s ease, color .15s ease;
+}
+.careerless-wfrp .sheet-tabs .item:hover {
+  background: #222d1d;
+  color: var(--rat-warp-bright);
+}
+.careerless-wfrp .sheet-tabs .item.active {
+  background: linear-gradient(180deg, #293a20, #1a2418);
+  color: var(--rat-warp-bright);
+  box-shadow: inset 0 -3px 0 var(--rat-warp), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.careerless-wfrp .panel {
+  background:
+    linear-gradient(135deg, rgba(122, 57, 32, .055), transparent 42%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 4px),
+    var(--rat-panel);
+  border: 1px solid #414d37;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 3px 9px rgba(0,0,0,.18);
+}
+.careerless-wfrp .panel h2 {
+  color: var(--rat-warp);
+  border-bottom: 1px solid var(--rat-rust);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 7px rgba(139, 211, 61, .12);
+}
+.careerless-wfrp .panel h3 { color: #c3d79e; }
+.careerless-wfrp label { color: #d7d2bc; }
+.careerless-wfrp input,
+.careerless-wfrp textarea,
+.careerless-wfrp select {
+  background: #0c110d;
+  color: var(--rat-bone);
+  border: 1px solid #48563c;
+  border-radius: 2px;
+  accent-color: var(--rat-warp);
+}
+.careerless-wfrp input::placeholder,
+.careerless-wfrp textarea::placeholder { color: #7f8876; }
+.careerless-wfrp input:focus,
+.careerless-wfrp textarea:focus,
+.careerless-wfrp select:focus {
+  border-color: var(--rat-warp);
+  box-shadow: 0 0 0 1px rgba(139, 211, 61, .25), 0 0 8px rgba(139, 211, 61, .1);
+}
+.careerless-wfrp input[type="checkbox"] {
+  accent-color: var(--rat-warp);
+  filter: drop-shadow(0 0 2px rgba(139, 211, 61, .12));
+}
+.careerless-wfrp button {
+  background: linear-gradient(180deg, #2b3527, #171e17);
+  color: var(--rat-bone);
+  border: 1px solid #5b7042;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-size: 10px;
+  box-shadow: inset 0 1px rgba(255,255,255,.035);
+}
+.careerless-wfrp button:hover {
+  background: linear-gradient(180deg, #3b5129, #202d1b);
+  color: var(--rat-warp-bright);
+  border-color: var(--rat-warp);
+  box-shadow: 0 0 8px rgba(139, 211, 61, .14);
+}
+.careerless-wfrp .characteristic,
+.careerless-wfrp .skill-row,
+.careerless-wfrp .location-armour-row,
+.careerless-wfrp .inventory-item,
+.careerless-wfrp .custom-entry {
+  background: var(--rat-panel-raised);
+  border-color: #3f4c34;
+}
+.careerless-wfrp .characteristic { border-left: 2px solid #617b40; }
+.careerless-wfrp .characteristic-head { color: var(--rat-warp); }
+.careerless-wfrp .characteristic-score input {
+  color: var(--rat-warp-bright);
+  background: #0d130d;
+}
+.careerless-wfrp .skill-row.header {
+  background: #2a3822;
+  color: var(--rat-warp-bright);
+}
+.careerless-wfrp .stat-button,
+.careerless-wfrp .link-button { color: #d3e7b4; }
+.careerless-wfrp .stat-button:hover,
+.careerless-wfrp .link-button:hover { color: var(--rat-warp-bright); }
+.careerless-wfrp .muted,
+.careerless-wfrp .stat-detail,
+.careerless-wfrp .item-row small,
+.careerless-wfrp .inventory-item small,
+.careerless-wfrp .inventory-item-detail { color: var(--rat-bone-dim); }
+.careerless-wfrp .item-row { border-bottom-color: #3f4c34; }
+.careerless-wfrp .manual-note { color: #d08a56; }
+.careerless-wfrp .aptitude-row {
+  border-bottom: 1px dotted #394630;
+  padding: 6px 8px;
+  background: rgba(0,0,0,.12);
+}
+.careerless-wfrp .aptitude-row:has(input:checked) {
+  background: rgba(139, 211, 61, .10);
+  color: var(--rat-warp-bright);
+  box-shadow: inset 2px 0 var(--rat-warp);
+}
+.careerless-wfrp .aptitude-slot-grid input { border-left: 2px solid var(--rat-rust-light); }
+.careerless-wfrp .inventory-item { border-left: 2px solid var(--rat-rust); }
+.careerless-wfrp .custom-entry { border-left: 2px solid #6e963b; }
+.careerless-wfrp .item-name { color: var(--rat-warp-bright); }
+.careerless-wfrp .item-body { background: var(--rat-soot); }
+.careerless-wfrp .item-fields-grid label,
+.careerless-wfrp .item-body > label { color: #d7d2bc; }
+.careerless-wfrp .sheet-body {
+  scrollbar-color: #596f3e #101510;
+}
+.careerless-wfrp .sheet-body::-webkit-scrollbar { width: 10px; }
+.careerless-wfrp .sheet-body::-webkit-scrollbar-track { background: #101510; }
+.careerless-wfrp .sheet-body::-webkit-scrollbar-thumb {
+  background: #53683a;
+  border: 2px solid #101510;
+}
+.careerless-wfrp .sheet-body::-webkit-scrollbar-thumb:hover { background: var(--rat-warp); }
+@media (max-width: 900px) {
+  .careerless-wfrp .sheet-header { grid-template-columns: 82px 1fr; }
+  .careerless-wfrp .portrait-wrap { width: 78px; height: 78px; }
+  .careerless-wfrp .xp-card { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--rat-rust); padding: 8px 0 0; }
+  .careerless-wfrp .sheet-header::after { display: none; }
+}
