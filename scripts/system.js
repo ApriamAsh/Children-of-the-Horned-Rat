@@ -8,6 +8,8 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.weapon = CareerlessItemData;
   CONFIG.Item.dataModels.armor = CareerlessItemData;
   CONFIG.Item.dataModels.equipment = CareerlessItemData;
+  CONFIG.Item.dataModels.skill = CareerlessItemData;
+  CONFIG.Item.dataModels.power = CareerlessItemData;
 
   CONFIG.CareerlessWFRP = {
     characteristicLabels: Object.fromEntries(CHARACTERISTICS.map(([key, label]) => [key, label])),
@@ -21,7 +23,7 @@ Hooks.once("init", () => {
   });
 
   Items.registerSheet("careerless-wfrp", CareerlessItemSheet, {
-    types: ["talent", "weapon", "armor", "equipment"],
+    types: ["talent", "weapon", "armor", "equipment", "skill", "power"],
     makeDefault: true,
     label: "CAREERLESS_WFRP.Sheet.Item"
   });
